@@ -768,11 +768,13 @@ void AudioInputProcessor::executeOnFocusChanged(avsCommon::avs::FocusState newFo
 }
 
 bool AudioInputProcessor::executeStopCapture(bool stopImmediately, std::shared_ptr<DirectiveInfo> info) {
+    ACSDK_DEBUG(LX("stopCaptureCalled"));
     if (info && info->isCancelled) {
         ACSDK_DEBUG(LX("stopCaptureIgnored").d("reason", "isCancelled"));
         return true;
     }
     if (m_state != ObserverInterface::State::RECOGNIZING) {
+        ACSDK_DEBUG(LX("stopCapture - state is not in recognizing").d("reason", "only allowed in recognizing"));
         static const char* errorMessage = "StopCapture only allowed in RECOGNIZING state.";
         auto returnValue = false;
         if (info) {

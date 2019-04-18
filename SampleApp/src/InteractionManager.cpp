@@ -16,6 +16,8 @@
 #include "ESP/ESPDataProviderInterface.h"
 #include "RegistrationManager/CustomerDataManager.h"
 #include "SampleApp/InteractionManager.h"
+#include <chrono>
+#include <thread>
 
 #ifdef ENABLE_PCC
 #include <SampleApp/PhoneCaller.h>
@@ -65,6 +67,10 @@ void InteractionManager::begin() {
         m_userInterface->printWelcomeScreen();
         m_userInterface->printHelpScreen();
     });
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+
+    tap();
+    tap();
 }
 
 void InteractionManager::help() {
