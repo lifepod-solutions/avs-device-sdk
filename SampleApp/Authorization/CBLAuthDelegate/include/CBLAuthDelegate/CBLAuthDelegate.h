@@ -118,7 +118,9 @@ private:
         /// retrying if required. Once a valid code pair is acquired, ask the user to authorize by browsing
         /// to a verification URL (supplied by LWA with the code pair) and entering the user_code from the
         /// code pair.  Then transition to @c REQUESTING_TOKEN.
-        REQUESTING_CODE_PAIR,
+        SENDING_CODE_CHALLENGE,
+
+        REQUESTING_REDIRECT_URI,
         /// Have received a code pair from @c LWA and are waiting for the user to authenticate and enter
         /// the user code. Wait for the user by polling @c LWA for an access token using the device code
         /// and user code. Waiting stops when an access token is received or the code pair expires. If an
@@ -180,11 +182,20 @@ private:
     FlowState handleStarting();
 
     /**
-     * Handle the @c REQUESTING_CODE_PAIR @c FlowState
+     * Handle the @c REQUESTING_PRODUCT_METADATA @c FlowState
      *
      * @return Return the @c FlowState to transition to.
      */
-    FlowState handleRequestingCodePair();
+
+    FlowState handleSendingCodeChallenge();
+
+    std::string createCodeChallenge();
+    /**
+     * Handle the @c REQUESTING_REDIRECT_URI @c FlowState
+     *
+     * @return Return the @c FlowState to transition to.
+     */
+    FlowState handleRequestingRedirectURI();
 
     /**
      * Handle the @c REQUESTING_TOKEN @c FlowState
@@ -215,6 +226,17 @@ private:
     avsCommon::utils::libcurlUtils::HTTPResponse requestCodePair();
 
     /**
+     * Request a @c device_code, @c user_code pair from @c LWA.
+     *
+     * @return The response to the request.
+     */
+    avsCommon::utils::libcurlUtils::HTTPResponse pollForAuthorizationCodeOnAuthSuccess();
+
+    avsCommon::utils::libcurlUtils::HTTPResponse sendCodeChallenge();
+
+    std::string random_string();
+
+    /**
      * Use a code pair to request an access token.
      *
      * @return The response to the request.
@@ -237,6 +259,11 @@ private:
     avsCommon::sdkInterfaces::AuthObserverInterface::Error receiveCodePairResponse(
         const avsCommon::utils::libcurlUtils::HTTPResponse& response);
 
+    avsCommon::sdkInterfaces::AuthObserverInterface::Error receiveProductMetadataRegisteredResponse(
+        const avsCommon::utils::libcurlUtils::HTTPResponse& response);
+
+    avsCommon::sdkInterfaces::AuthObserverInterface::Error receiveCodeChallengeRegisteredResponse(
+        const avsCommon::utils::libcurlUtils::HTTPResponse& response);
     /**
      * Handle receiving the response to a request for an access token.
      *
@@ -295,6 +322,8 @@ private:
      * Access is not synchronized because it is only accessed by @c m_thread.
      */
     std::shared_ptr<avsCommon::utils::libcurlUtils::HttpPostInterface> m_httpPost;
+
+    // std::shared_ptr<avsCommon::utils::libcurlUtils::HttpGetInterface> m_httpGet;
 
     /// Observer to receive notifications from this instance of CBLAuthDelegate.
     std::shared_ptr<CBLAuthRequesterInterface> m_authRequester;

@@ -77,7 +77,9 @@ public:
 
     /// @name CBLAuthRequesterInterface Functions
     /// @{
-    void onRequestAuthorization(const std::string& url, const std::string& code) override;
+    void showProductMetadataURI(const std::string& url) override;
+    void showCodeChallengeURI(const std::string& url) override;
+
     void onCheckingForAuthorization() override;
     /// }
 

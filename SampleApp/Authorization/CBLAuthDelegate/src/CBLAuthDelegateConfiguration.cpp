@@ -93,6 +93,14 @@ static const std::string REQUEST_TOKEN_PATH = "token";
 /// Path suffix for URl used in token refresh requests to @c LWA.
 static const std::string REFRESH_TOKEN_PATH = "token";
 
+static const std::string PRODUCT_METADATA_PATH = "metadata";
+
+static const std::string PRODUCT_METADATA_REGISTERED_PATH = "metadata-registered";
+
+static const std::string CODE_CHALLENGE_PATH = "challenge";
+
+static const std::string mockCompanionAppBaseUrl = "http://localhost:10000/";
+
 std::unique_ptr<CBLAuthDelegateConfiguration> CBLAuthDelegateConfiguration::create(
     const avsCommon::utils::configuration::ConfigurationNode& configuration,
     const std::shared_ptr<avsCommon::utils::DeviceInfo>& deviceInfo) {
@@ -143,6 +151,10 @@ bool CBLAuthDelegateConfiguration::init(
     m_requestTokenUrl = lwaBaseUrl + REQUEST_TOKEN_PATH;
     m_refreshTokenUrl = lwaBaseUrl + REFRESH_TOKEN_PATH;
 
+    m_sendProductMetadataUrl = mockCompanionAppBaseUrl + PRODUCT_METADATA_PATH;
+    m_productMetadataRegisteredPollUrl = mockCompanionAppBaseUrl + PRODUCT_METADATA_REGISTERED_PATH;
+    m_sendCodeChallengeUrl = mockCompanionAppBaseUrl + CODE_CHALLENGE_PATH;
+
     return true;
 }
 
@@ -172,6 +184,22 @@ std::string CBLAuthDelegateConfiguration::getLocale() const {
 
 std::string CBLAuthDelegateConfiguration::getRequestCodePairUrl() const {
     return m_requestCodePairUrl;
+}
+
+std::string CBLAuthDelegateConfiguration::getSendProductMetadataUrl() const {
+    return m_sendProductMetadataUrl;
+}
+
+std::string CBLAuthDelegateConfiguration::getProductMetadataRegisteredPollUrl() const {
+    return m_productMetadataRegisteredPollUrl;
+}
+
+std::string CBLAuthDelegateConfiguration::getSendCodeChallengeUrl() const {
+    return m_sendCodeChallengeUrl;
+}
+
+std::string CBLAuthDelegateConfiguration::getCodeChallengeRegisteredPollUrl() const {
+    return m_productMetadataRegisteredPollUrl;
 }
 
 std::string CBLAuthDelegateConfiguration::getRequestTokenUrl() const {

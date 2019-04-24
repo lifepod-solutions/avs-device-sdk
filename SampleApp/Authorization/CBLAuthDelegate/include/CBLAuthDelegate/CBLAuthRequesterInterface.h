@@ -33,7 +33,14 @@ public:
      * @param url The URL that the user needs to navigate to.
      * @param code The code that the user needs to enter once authorized.
      */
-    virtual void onRequestAuthorization(const std::string& url, const std::string& code) = 0;
+
+    // virtual void onRequestAuthorization(const std::string& url, const std::string& code) = 0;
+
+    virtual void showProductMetadataURI(const std::string& url) = 0;
+
+    virtual void showCodeChallengeURI(const std::string& url) = 0;
+
+    // virtual void onRequestRedirectURI(const std::string& url) = 0;
 
     /**
      * Notification that we are polling @c LWA to see if the client has been authorized.

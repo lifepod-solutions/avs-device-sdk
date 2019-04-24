@@ -368,12 +368,22 @@ void UIManager::onSetIndicator(avsCommon::avs::IndicatorState state) {
     });
 }
 
-void UIManager::onRequestAuthorization(const std::string& url, const std::string& code) {
-    m_executor.submit([this, url, code]() {
+void UIManager::showProductMetadataURI(const std::string& url) {
+    m_executor.submit([this, url]() {
         m_authCheckCounter = 0;
-        ConsolePrinter::prettyPrint("NOT YET AUTHORIZED");
+        ConsolePrinter::prettyPrint("OPEN URL TO REGISTER PRODUCT METADATA");
         std::ostringstream oss;
-        oss << "To authorize, browse to: '" << url << "' and enter the code: " << code;
+        oss << "To register product metadata, open: '" << url;
+        ConsolePrinter::prettyPrint(oss.str());
+    });
+}
+
+void UIManager::showCodeChallengeURI(const std::string& url) {
+    m_executor.submit([this, url]() {
+        m_authCheckCounter = 0;
+        ConsolePrinter::prettyPrint("OPEN URL TO SUBMIT CODE CHALLENGE");
+        std::ostringstream oss;
+        oss << "To initiate code challenge: " << url;
         ConsolePrinter::prettyPrint(oss.str());
     });
 }

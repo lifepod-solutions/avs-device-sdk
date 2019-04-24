@@ -13,6 +13,16 @@
  * permissions and limitations under the License.
  */
 
+#include "picosha2.h"
+
+extern "C" {
+#include "randombytes.h"
+}
+
+#include <string>
+#include <sstream>
+#include <iomanip>
+
 #include <algorithm>
 #include <functional>
 #include <iostream>
@@ -88,6 +98,9 @@ static const std::string POST_KEY_RESPONSE_TYPE = "response_type";
 /// client_id key in POST requests to @c LWA.
 static const std::string POST_KEY_CLIENT_ID = "client_id";
 
+/// client_id key in POST requests to @c LWA.
+static const std::string POST_KEY_DEVICE_SERIAL_NUMBER = "device_serial_number";
+
 /// scope key in POST requests to @c LWA.
 static const std::string POST_KEY_SCOPE = "scope";
 
@@ -147,8 +160,8 @@ static const std::unordered_map<std::string, AuthObserverInterface::Error> g_nam
  * Helper function to convert from @c LWA error names to @c AuthObserverInterface::Error values.
  *
  * @param error The string in the @c error field returned by @c LWA
- * @return the Error enum code corresponding to @c error. If error is "", returns SUCCESS. If it is an unknown error,
- * returns UNKNOWN_ERROR.
+ * @return the Error enum code corresponding to @c error. If error is "", returns SUCCESS. If it is an unknown
+ * error, returns UNKNOWN_ERROR.
  */
 static AuthObserverInterface::Error getErrorCode(const std::string& error) {
     if (error.empty()) {
@@ -435,19 +448,26 @@ void CBLAuthDelegate::handleAuthorizationFlow() {
         auto nextFlowState = FlowState::STOPPING;
         switch (flowState) {
             case FlowState::STARTING:
+                ACSDK_DEBUG5(LX("flowState: Starting"));
                 nextFlowState = handleStarting();
                 break;
-            case FlowState::REQUESTING_CODE_PAIR:
-                nextFlowState = handleRequestingCodePair();
+            case FlowState::SENDING_CODE_CHALLENGE:
+                ACSDK_DEBUG5(LX("flowState: Requesting Redirect URI"));
+                nextFlowState = handleSendingCodeChallenge();
                 break;
             case FlowState::REQUESTING_TOKEN:
+                ACSDK_DEBUG5(LX("flowState: Requesting token"));
                 nextFlowState = handleRequestingToken();
                 break;
             case FlowState::REFRESHING_TOKEN:
+                ACSDK_DEBUG5(LX("flowState: Refreshing token"));
                 nextFlowState = handleRefreshingToken();
                 break;
             case FlowState::STOPPING:
+                ACSDK_DEBUG5(LX("flowState: Stopping"));
                 nextFlowState = handleStopping();
+                break;
+            default:
                 break;
         }
         flowState = nextFlowState;
@@ -462,15 +482,22 @@ CBLAuthDelegate::FlowState CBLAuthDelegate::handleStarting() {
     }
 
     ACSDK_DEBUG0(LX("getRefreshTokenFailed"));
-    return FlowState::REQUESTING_CODE_PAIR;
+    return FlowState::SENDING_CODE_CHALLENGE;
 }
 
-CBLAuthDelegate::FlowState CBLAuthDelegate::handleRequestingCodePair() {
-    ACSDK_DEBUG5(LX("handleRequestingCodePair"));
-
+CBLAuthDelegate::FlowState CBLAuthDelegate::handleSendingCodeChallenge() {
     m_retryCount = 0;
+    std::string codeChallenge = createCodeChallenge();
+    std::string src_string = CBLAuthDelegate::random_string();
+    ACSDK_DEBUG5(LX("handleSendingCodeChallenge code verifier: " + src_string));
+    std::string hash_hex_str;
+    picosha2::hash256_hex_string(src_string, hash_hex_str);
+    auto url = m_configuration->getSendCodeChallengeUrl() +
+               "?serialNumber=" + m_configuration->getDeviceSerialNumber() +
+               "&productID=" + m_configuration->getProductId() + "&challenge=" + hash_hex_str;
+    m_authRequester->showCodeChallengeURI(url);
     while (!isStopping()) {
-        auto result = receiveCodePairResponse(requestCodePair());
+        auto result = receiveCodeChallengeRegisteredResponse(pollForAuthorizationCodeOnAuthSuccess());
         switch (result) {
             case AuthObserverInterface::Error::SUCCESS:
                 return FlowState::REQUESTING_TOKEN;
@@ -500,6 +527,55 @@ CBLAuthDelegate::FlowState CBLAuthDelegate::handleRequestingCodePair() {
     return FlowState::STOPPING;
 }
 
+// CBLAuthDelegate::FlowState CBLAuthDelegate::handleRequestingCodePair() {
+//     ACSDK_DEBUG5(LX("handleRequestingCodePair"));
+
+//     m_retryCount = 0;
+//     while (!isStopping()) {
+//         auto result = receiveCodePairResponse(requestCodePair());
+//         switch (result) {
+//             case AuthObserverInterface::Error::SUCCESS:
+//                 return FlowState::REQUESTING_TOKEN;
+//             case AuthObserverInterface::Error::UNKNOWN_ERROR:
+//             case AuthObserverInterface::Error::AUTHORIZATION_FAILED:
+//             case AuthObserverInterface::Error::SERVER_ERROR:
+//             case AuthObserverInterface::Error::AUTHORIZATION_EXPIRED:
+//             case AuthObserverInterface::Error::INVALID_CODE_PAIR:
+//             case AuthObserverInterface::Error::AUTHORIZATION_PENDING:
+//             case AuthObserverInterface::Error::SLOW_DOWN:
+//                 break;
+//             case AuthObserverInterface::Error::UNAUTHORIZED_CLIENT:
+//             case AuthObserverInterface::Error::INVALID_REQUEST:
+//             case AuthObserverInterface::Error::INVALID_VALUE:
+//             case AuthObserverInterface::Error::UNSUPPORTED_GRANT_TYPE:
+//             case AuthObserverInterface::Error::INTERNAL_ERROR:
+//             case AuthObserverInterface::Error::INVALID_CBL_CLIENT_ID: {
+//                 setAuthState(AuthObserverInterface::State::UNRECOVERABLE_ERROR);
+//                 return FlowState::STOPPING;
+//             }
+//         }
+
+//         std::unique_lock<std::mutex> lock(m_mutex);
+//         m_wake.wait_until(lock, calculateTimeToRetry(m_retryCount++), [this] { return m_isStopping; });
+//     }
+
+//     return FlowState::STOPPING;
+// }
+
+std::string CBLAuthDelegate::random_string() {
+    auto randchar = []() -> char {
+        const char charset[] =
+            "0123456789"
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            "abcdefghijklmnopqrstuvwxyz";
+        const size_t max_index = (sizeof(charset) - 1);
+        return charset[rand() % max_index];
+    };
+    std::string str(32, 0);
+    std::generate_n(str.begin(), 32, randchar);
+    return str;
+}
+
 CBLAuthDelegate::FlowState CBLAuthDelegate::handleRequestingToken() {
     ACSDK_DEBUG5(LX("handleRequestingToken"));
 
@@ -507,11 +583,11 @@ CBLAuthDelegate::FlowState CBLAuthDelegate::handleRequestingToken() {
 
     while (!isStopping()) {
         // If the code pair expired, stop.  The application needs to restart authorization.
-        if (std::chrono::steady_clock::now() >= m_codePairExpirationTime) {
-            setAuthError(AuthObserverInterface::Error::INVALID_CODE_PAIR);
-            setAuthState(AuthObserverInterface::State::UNRECOVERABLE_ERROR);
-            return FlowState::STOPPING;
-        }
+        // if (std::chrono::steady_clock::now() >= m_codePairExpirationTime) {
+        //     setAuthError(AuthObserverInterface::Error::INVALID_CODE_PAIR);
+        //     setAuthState(AuthObserverInterface::State::UNRECOVERABLE_ERROR);
+        //     return FlowState::STOPPING;
+        // }
 
         m_authRequester->onCheckingForAuthorization();
         auto result = receiveTokenResponse(requestToken(), true);
@@ -623,6 +699,48 @@ CBLAuthDelegate::FlowState CBLAuthDelegate::handleStopping() {
     return FlowState::STOPPING;
 }
 
+HTTPResponse CBLAuthDelegate::pollForAuthorizationCodeOnAuthSuccess() {
+    ACSDK_DEBUG5(LX("pollsRegisteredCodeChallenge"));
+
+    const std::vector<std::pair<std::string, std::string>> postData = {
+        {POST_KEY_CLIENT_ID, m_configuration->getClientId()},
+        {POST_KEY_DEVICE_SERIAL_NUMBER, m_configuration->getDeviceSerialNumber()},
+    };
+    const std::vector<std::string> headerLines = {HEADER_LINE_URLENCODED,
+                                                  HEADER_LINE_LANGUAGE_PREFIX + m_configuration->getLocale()};
+
+    return m_httpPost->doPost(
+        m_configuration->getCodeChallengeRegisteredPollUrl(),
+        headerLines,
+        postData,
+        m_configuration->getRequestTimeout());
+}
+
+std::string CBLAuthDelegate::createCodeChallenge() {
+    ACSDK_DEBUG5(LX("requestProductMetadataRegistered"));
+    std::string verifier = "5f001234123ASDASSFSFAASF66666666";
+    std::string hash_hex_str;
+    picosha2::hash256_hex_string(verifier, hash_hex_str);
+    return hash_hex_str;
+}
+
+HTTPResponse CBLAuthDelegate::sendCodeChallenge() {
+    ACSDK_DEBUG5(LX("requestProductMetadataRegistered"));
+
+    const std::vector<std::pair<std::string, std::string>> postData = {
+        {POST_KEY_CLIENT_ID, m_configuration->getClientId()},
+        {POST_KEY_DEVICE_SERIAL_NUMBER, m_configuration->getDeviceSerialNumber()},
+    };
+    const std::vector<std::string> headerLines = {HEADER_LINE_URLENCODED,
+                                                  HEADER_LINE_LANGUAGE_PREFIX + m_configuration->getLocale()};
+
+    return m_httpPost->doPost(
+        m_configuration->getProductMetadataRegisteredPollUrl(),
+        headerLines,
+        postData,
+        m_configuration->getRequestTimeout());
+}
+
 HTTPResponse CBLAuthDelegate::requestCodePair() {
     ACSDK_DEBUG5(LX("requestCodePair"));
 
@@ -673,6 +791,32 @@ avsCommon::utils::libcurlUtils::HTTPResponse CBLAuthDelegate::requestRefresh() {
     }
 
     return m_httpPost->doPost(m_configuration->getRequestTokenUrl(), headerLines, postData, timeout);
+}
+
+AuthObserverInterface::Error CBLAuthDelegate::receiveProductMetadataRegisteredResponse(const HTTPResponse& response) {
+    ACSDK_DEBUG5(
+        LX("receiveProductMetadataRegisteredResponse").d("code", response.code).sensitive("body", response.body));
+
+    if (response.code == 200) {
+        return AuthObserverInterface::Error::SUCCESS;
+    } else if (response.code == 500) {
+        return AuthObserverInterface::Error::SERVER_ERROR;
+    } else {
+        return AuthObserverInterface::Error::AUTHORIZATION_PENDING;
+    }
+}
+
+AuthObserverInterface::Error CBLAuthDelegate::receiveCodeChallengeRegisteredResponse(const HTTPResponse& response) {
+    ACSDK_DEBUG5(
+        LX("receiveProductMetadataRegisteredResponse").d("code", response.code).sensitive("body", response.body));
+
+    if (response.code == 200) {
+        return AuthObserverInterface::Error::SUCCESS;
+    } else if (response.code == 500) {
+        return AuthObserverInterface::Error::SERVER_ERROR;
+    } else {
+        return AuthObserverInterface::Error::AUTHORIZATION_PENDING;
+    }
 }
 
 AuthObserverInterface::Error CBLAuthDelegate::receiveCodePairResponse(const HTTPResponse& response) {
@@ -728,7 +872,7 @@ AuthObserverInterface::Error CBLAuthDelegate::receiveCodePairResponse(const HTTP
 
     m_codePairExpirationTime = std::chrono::steady_clock::now() + std::chrono::seconds(expiresInSeconds);
 
-    m_authRequester->onRequestAuthorization(verificationUri, m_userCode);
+    // m_authRequester->onRequestAuthorization(verificationUri, m_userCode);
 
     return result;
 }

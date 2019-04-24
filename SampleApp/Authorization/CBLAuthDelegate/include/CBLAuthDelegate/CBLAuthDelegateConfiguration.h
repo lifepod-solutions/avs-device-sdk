@@ -85,6 +85,19 @@ public:
     std::string getLocale() const;
 
     /**
+     * Get the URL to use when sending a product metadata to auth api.
+     *
+     * @return The URL to use when sending a product metadata to auth api.
+     */
+    std::string getSendProductMetadataUrl() const;
+
+    std::string getProductMetadataRegisteredPollUrl() const;
+
+    std::string getSendCodeChallengeUrl() const;
+
+    std::string getCodeChallengeRegisteredPollUrl() const;
+
+    /**
      * Get the URL to use when requesting a code pair from @c LWA.
      *
      * @return The URL to use when requesting a code pair from @c LWA.
@@ -142,6 +155,12 @@ private:
 
     /// Locale to pass in code pair requests to @c LWA.
     std::string m_locale;
+
+    std::string m_sendProductMetadataUrl;
+
+    std::string m_productMetadataRegisteredPollUrl;
+
+    std::string m_sendCodeChallengeUrl;
 
     /// Base URL for requesting a code pair.
     std::string m_requestCodePairUrl;
