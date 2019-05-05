@@ -112,24 +112,18 @@ private:
      */
     enum class FlowState {
         /// Initialization: if there is an existing refresh token, transition to @c REFRESHING_TOKEN, if not
-        /// transition to @c REQUESTING_CODE_PAIR.
+        /// transition to @c SENDING_CODE_CHALLENGE.
         STARTING,
-        /// No valid refresh token, restart the authorization process by requesting a code pair from @c LWA,
-        /// retrying if required. Once a valid code pair is acquired, ask the user to authorize by browsing
-        /// to a verification URL (supplied by LWA with the code pair) and entering the user_code from the
-        /// code pair.  Then transition to @c REQUESTING_TOKEN.
+
+        /// Sending code challenge. Send code challenge serialNumber, productID and code challenge to mock companion app
+        /// via opening a url
         SENDING_CODE_CHALLENGE,
 
-        REQUESTING_REDIRECT_URI,
-        /// Have received a code pair from @c LWA and are waiting for the user to authenticate and enter
-        /// the user code. Wait for the user by polling @c LWA for an access token using the device code
-        /// and user code. Waiting stops when an access token is received or the code pair expires. If an
-        /// access token is acquired, transition to @c REFRESHING_TOKEN. If the code pair expires before
-        /// an access token is acquired, transition back to @c REQUESTING_CODE_PAIR.
         REQUESTING_TOKEN,
         /// Have a refresh token, and may have a valid access token. Periodically refresh (or acquire) an
         /// access token so that if possible, a valid access token is always available. If the refresh
-        /// token becomes invalid, transition back to the @c REQUESTING_CODE_PAIR state.
+        /// token becomes invalid, transition back to the @c SENDING_CODE_CHALLENGE state.
+
         REFRESHING_TOKEN,
         /// Either a shutdown has been triggered or an unrecoverable error has been encountered. Stop
         /// the process of acquiring an access token.
@@ -189,7 +183,6 @@ private:
 
     FlowState handleSendingCodeChallenge();
 
-    std::string createCodeChallenge();
     /**
      * Handle the @c REQUESTING_REDIRECT_URI @c FlowState
      *
@@ -219,25 +212,16 @@ private:
     FlowState handleStopping();
 
     /**
-     * Request a @c device_code, @c user_code pair from @c LWA.
-     *
-     * @return The response to the request.
-     */
-    avsCommon::utils::libcurlUtils::HTTPResponse requestCodePair();
-
-    /**
-     * Request a @c device_code, @c user_code pair from @c LWA.
+     *  Poll for authorization code success
      *
      * @return The response to the request.
      */
     avsCommon::utils::libcurlUtils::HTTPResponse pollForAuthorizationCodeOnAuthSuccess();
 
-    avsCommon::utils::libcurlUtils::HTTPResponse sendCodeChallenge();
-
     std::string random_string();
 
     /**
-     * Use a code pair to request an access token.
+     * Use a companion app auth to request an access token.
      *
      * @return The response to the request.
      */
@@ -251,18 +235,12 @@ private:
     avsCommon::utils::libcurlUtils::HTTPResponse requestRefresh();
 
     /**
-     * Handle receiving the response to a code pair request.
+     * Handle receiving the response to a auth code request
      *
      * @param response The response to handle.
      * @return The resulting status.
      */
-    avsCommon::sdkInterfaces::AuthObserverInterface::Error receiveCodePairResponse(
-        const avsCommon::utils::libcurlUtils::HTTPResponse& response);
-
-    avsCommon::sdkInterfaces::AuthObserverInterface::Error receiveProductMetadataRegisteredResponse(
-        const avsCommon::utils::libcurlUtils::HTTPResponse& response);
-
-    avsCommon::sdkInterfaces::AuthObserverInterface::Error receiveCodeChallengeRegisteredResponse(
+    avsCommon::sdkInterfaces::AuthObserverInterface::Error receiveAuthCodeResponse(
         const avsCommon::utils::libcurlUtils::HTTPResponse& response);
     /**
      * Handle receiving the response to a request for an access token.
@@ -349,17 +327,17 @@ private:
     /// Current authorization error. Access is synchronized with @c m_mutex.
     avsCommon::sdkInterfaces::AuthObserverInterface::Error m_authError;
 
-    /// device-code value returned from a successful code pair request.
-    std::string m_deviceCode;
+    /// auth-code value returned from a successful login request.
+    std::string m_authCode;
 
-    /// user-code value returned from a successful code pair request.
-    std::string m_userCode;
+    /// code verifier value created by device for PKCE auth
+    std::string m_codeVerifier;
 
-    /// Thread for processing the Code-Based Linking authorization flow.
+    /// Thread for processing authorization flow.
     std::thread m_authorizationFlowThread;
 
     /// Point in time when the last received pair of @c device_code, @c user_code will expire.
-    std::chrono::steady_clock::time_point m_codePairExpirationTime;
+    // std::chrono::steady_clock::time_point m_codePairExpirationTime;
 
     /// Time when the current value of @c m_accessToken will expire.
     std::chrono::steady_clock::time_point m_tokenExpirationTime;

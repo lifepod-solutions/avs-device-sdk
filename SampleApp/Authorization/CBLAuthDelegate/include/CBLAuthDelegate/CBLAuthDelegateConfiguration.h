@@ -95,7 +95,7 @@ public:
 
     std::string getSendCodeChallengeUrl() const;
 
-    std::string getCodeChallengeRegisteredPollUrl() const;
+    std::string getAuthorizedPollUrl() const;
 
     /**
      * Get the URL to use when requesting a code pair from @c LWA.
@@ -170,6 +170,9 @@ private:
 
     /// Base URL for refreshing an auth token.
     std::string m_refreshTokenUrl;
+
+    // Poll url for companion app authorized
+    std::string m_authorizedPollUrl;
 
     /// JSON string for scope_data value passed to @c LWA in code pair requests.
     std::string m_scopeData;

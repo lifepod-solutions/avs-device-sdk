@@ -97,9 +97,11 @@ static const std::string PRODUCT_METADATA_PATH = "metadata";
 
 static const std::string PRODUCT_METADATA_REGISTERED_PATH = "metadata-registered";
 
-static const std::string CODE_CHALLENGE_PATH = "challenge";
+static const std::string CODE_CHALLENGE_PATH = "authorize";
 
-static const std::string mockCompanionAppBaseUrl = "http://localhost:10000/";
+static const std::string AUTHORIZED_POLL_PATH = "authorized";
+
+static const std::string mockCompanionAppBaseUrl = "http://localhost:5000/";
 
 std::unique_ptr<CBLAuthDelegateConfiguration> CBLAuthDelegateConfiguration::create(
     const avsCommon::utils::configuration::ConfigurationNode& configuration,
@@ -154,7 +156,7 @@ bool CBLAuthDelegateConfiguration::init(
     m_sendProductMetadataUrl = mockCompanionAppBaseUrl + PRODUCT_METADATA_PATH;
     m_productMetadataRegisteredPollUrl = mockCompanionAppBaseUrl + PRODUCT_METADATA_REGISTERED_PATH;
     m_sendCodeChallengeUrl = mockCompanionAppBaseUrl + CODE_CHALLENGE_PATH;
-
+    m_authorizedPollUrl = mockCompanionAppBaseUrl + AUTHORIZED_POLL_PATH;
     return true;
 }
 
@@ -198,8 +200,8 @@ std::string CBLAuthDelegateConfiguration::getSendCodeChallengeUrl() const {
     return m_sendCodeChallengeUrl;
 }
 
-std::string CBLAuthDelegateConfiguration::getCodeChallengeRegisteredPollUrl() const {
-    return m_productMetadataRegisteredPollUrl;
+std::string CBLAuthDelegateConfiguration::getAuthorizedPollUrl() const {
+    return m_authorizedPollUrl;
 }
 
 std::string CBLAuthDelegateConfiguration::getRequestTokenUrl() const {

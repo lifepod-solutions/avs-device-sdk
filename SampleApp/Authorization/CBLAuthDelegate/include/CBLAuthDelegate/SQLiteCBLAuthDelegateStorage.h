@@ -74,6 +74,8 @@ private:
 
     /// The underlying database class.
     alexaClientSDK::storage::sqliteStorage::SQLiteDatabase m_database;
+
+    std::string m_auth_code;
 };
 
 }  // namespace cblAuthDelegate
