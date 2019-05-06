@@ -58,7 +58,6 @@ if(BUILD_TESTING)
         COMMAND ${CMAKE_CTEST_COMMAND} -L Integration -C Integration --output-on-failure)
     include(${Integration_BINARY_DIR}/CTestCustom.cmake OPTIONAL)
     set(testSourceFiles
-        "${CMAKE_CURRENT_SOURCE_DIR}/AlexaAuthorizationDelegateTest.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/AlexaCommunicationsLibraryTest.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/AlexaDirectiveSequencerLibraryTest.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/AudioInputProcessorIntegrationTest.cpp"
