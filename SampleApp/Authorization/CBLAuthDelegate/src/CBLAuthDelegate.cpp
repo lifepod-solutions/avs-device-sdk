@@ -511,9 +511,8 @@ CBLAuthDelegate::FlowState CBLAuthDelegate::handleSendingCodeChallenge() {
     ACSDK_DEBUG5(LX("code verifier: " + m_codeVerifier));
     ACSDK_DEBUG5(LX("code challenge: " + code_challenge));
 
-    auto url = m_configuration->getSendCodeChallengeUrl() +
-               "?serial_number=" + m_configuration->getDeviceSerialNumber() + "&=" + m_configuration->getProductId() +
-               "&code_challenge=" + code_challenge;
+    auto url = m_configuration->getLoginRedirectUrl() + "?serial_number=" + m_configuration->getDeviceSerialNumber() +
+               "&product_id=" + m_configuration->getProductId() + "&code_challenge=" + code_challenge;
     m_authRequester->showCodeChallengeURI(url);
     while (!isStopping()) {
         auto result = receiveAuthCodeResponse(pollForAuthorizationCodeOnAuthSuccess());
@@ -700,7 +699,6 @@ HTTPResponse CBLAuthDelegate::pollForAuthorizationCodeOnAuthSuccess() {
 
 avsCommon::utils::libcurlUtils::HTTPResponse CBLAuthDelegate::requestToken() {
     ACSDK_DEBUG5(LX("requestToken"));
-    ACSDK_DEBUG5(LX(m_authCode));
 
     const std::vector<std::pair<std::string, std::string>> postData = {
         {POST_KEY_GRANT_TYPE, POST_VALUE_AUTHORIZATION_CODE},

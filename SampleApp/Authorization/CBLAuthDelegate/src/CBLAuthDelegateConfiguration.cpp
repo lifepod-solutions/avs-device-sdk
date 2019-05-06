@@ -45,6 +45,9 @@ static const std::string CONFIG_KEY_CBL_AUTH_DELEGATE = "cblAuthDelegate";
 /// Name of lwaURL value in CBLAuthDelegate's @c ConfigurationNode.
 static const std::string CONFIG_KEY_LWA_URL = "lwaUrl";
 
+/// Name of mock companion app value in CBLAuthDelegate's @c ConfigurationNode.
+static const std::string CONFIG_KEY_MOCK_COMPANION_APP_URL = "mockCompanionAppUrl";
+
 /// Name of requestTimeout value in CBLAuthDelegate's @c ConfigurationNode.
 static const std::string CONFIG_KEY_REQUEST_TIMEOUT = "requestTimeout";
 
@@ -84,24 +87,20 @@ static const std::chrono::minutes DEFAULT_ACCESS_TOKEN_REFRESH_HEAD_START = std:
 /// Default for configured base URL for @c LWA requests.
 static const std::string DEFAULT_LWA_BASE_URL = "https://api.amazon.com/auth/O2/";
 
-/// Path suffix for URL used in code pair requests to @C LWA.
-static const std::string REQUEST_CODE_PAIR_PATH = "create/codepair";
+static const std::string DEFAULT_MOCK_COMPANION_APP_URL = "http://localhost:5000/";
 
-/// Path suffix for URL used in code pair token requests to @c LWA.
+/// Path suffix for URL used in companion app token requests to @c LWA.
 static const std::string REQUEST_TOKEN_PATH = "token";
 
-/// Path suffix for URl used in token refresh requests to @c LWA.
+/// Path suffix for URL used in token refresh requests to @c LWA.
 static const std::string REFRESH_TOKEN_PATH = "token";
 
-static const std::string PRODUCT_METADATA_PATH = "metadata";
+/// Path suffix for login URL redirect handler of mock companion app
+// Companion app then redirects to Login With LifePod login page
+static const std::string LOGIN_REDIRECT_PATH = "authorize";
 
-static const std::string PRODUCT_METADATA_REGISTERED_PATH = "metadata-registered";
-
-static const std::string CODE_CHALLENGE_PATH = "authorize";
-
+// Path suffix for avs device to poll mock companion app for authorized state
 static const std::string AUTHORIZED_POLL_PATH = "authorized";
-
-static const std::string mockCompanionAppBaseUrl = "http://localhost:5000/";
 
 std::unique_ptr<CBLAuthDelegateConfiguration> CBLAuthDelegateConfiguration::create(
     const avsCommon::utils::configuration::ConfigurationNode& configuration,
@@ -148,14 +147,15 @@ bool CBLAuthDelegateConfiguration::init(
     }
 
     std::string lwaBaseUrl;
+    std::string mockCompanionAppBaseUrl;
     configuration.getString(CONFIG_KEY_LWA_URL, &lwaBaseUrl, DEFAULT_LWA_BASE_URL);
-    m_requestCodePairUrl = lwaBaseUrl + REQUEST_CODE_PAIR_PATH;
+    configuration.getString(
+        CONFIG_KEY_MOCK_COMPANION_APP_URL, &mockCompanionAppBaseUrl, DEFAULT_MOCK_COMPANION_APP_URL);
+
     m_requestTokenUrl = lwaBaseUrl + REQUEST_TOKEN_PATH;
     m_refreshTokenUrl = lwaBaseUrl + REFRESH_TOKEN_PATH;
 
-    m_sendProductMetadataUrl = mockCompanionAppBaseUrl + PRODUCT_METADATA_PATH;
-    m_productMetadataRegisteredPollUrl = mockCompanionAppBaseUrl + PRODUCT_METADATA_REGISTERED_PATH;
-    m_sendCodeChallengeUrl = mockCompanionAppBaseUrl + CODE_CHALLENGE_PATH;
+    m_loginRedirectUrl = mockCompanionAppBaseUrl + LOGIN_REDIRECT_PATH;
     m_authorizedPollUrl = mockCompanionAppBaseUrl + AUTHORIZED_POLL_PATH;
     return true;
 }
@@ -184,20 +184,8 @@ std::string CBLAuthDelegateConfiguration::getLocale() const {
     return m_locale;
 }
 
-std::string CBLAuthDelegateConfiguration::getRequestCodePairUrl() const {
-    return m_requestCodePairUrl;
-}
-
-std::string CBLAuthDelegateConfiguration::getSendProductMetadataUrl() const {
-    return m_sendProductMetadataUrl;
-}
-
-std::string CBLAuthDelegateConfiguration::getProductMetadataRegisteredPollUrl() const {
-    return m_productMetadataRegisteredPollUrl;
-}
-
-std::string CBLAuthDelegateConfiguration::getSendCodeChallengeUrl() const {
-    return m_sendCodeChallengeUrl;
+std::string CBLAuthDelegateConfiguration::getLoginRedirectUrl() const {
+    return m_loginRedirectUrl;
 }
 
 std::string CBLAuthDelegateConfiguration::getAuthorizedPollUrl() const {

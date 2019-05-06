@@ -85,29 +85,24 @@ public:
     std::string getLocale() const;
 
     /**
-     * Get the URL to use when sending a product metadata to auth api.
+     * Get the URL to use when sending code challenge to mock companion app and redirecting to Login with LifePod
+     * Service
      *
-     * @return The URL to use when sending a product metadata to auth api.
+     * @return the URL to use when sending code challenge to mock companion app and redirecting to Login with LifePod
      */
-    std::string getSendProductMetadataUrl() const;
+    std::string getLoginRedirectUrl() const;
 
-    std::string getProductMetadataRegisteredPollUrl() const;
-
-    std::string getSendCodeChallengeUrl() const;
-
+    /**
+     * Get the URL to use when polling authorization state for Login with LifePod
+     *
+     * @return The URL to use when when polling authorization state for Login with LifePod.
+     */
     std::string getAuthorizedPollUrl() const;
 
     /**
-     * Get the URL to use when requesting a code pair from @c LWA.
+     * Get the URL to use when requesting an initial access token from Login with LifePod.
      *
-     * @return The URL to use when requesting a code pair from @c LWA.
-     */
-    std::string getRequestCodePairUrl() const;
-
-    /**
-     * Get the URL to use when requesting an initial access token from @c LWA.
-     *
-     * @return The URL to use when requesting an initial access token from @c LWA.
+     * @return The URL to use when requesting an initial access token from Login wiht LifePod.
      */
     std::string getRequestTokenUrl() const;
 
@@ -156,20 +151,15 @@ private:
     /// Locale to pass in code pair requests to @c LWA.
     std::string m_locale;
 
-    std::string m_sendProductMetadataUrl;
-
-    std::string m_productMetadataRegisteredPollUrl;
-
-    std::string m_sendCodeChallengeUrl;
-
-    /// Base URL for requesting a code pair.
-    std::string m_requestCodePairUrl;
-
     /// Base URL for requesting an auth token.
     std::string m_requestTokenUrl;
 
     /// Base URL for refreshing an auth token.
     std::string m_refreshTokenUrl;
+
+    // URL for sending code challenge to mock companion app and redirecting to login page
+    // on Login with LifePod service
+    std::string m_loginRedirectUrl;
 
     // Poll url for companion app authorized
     std::string m_authorizedPollUrl;
