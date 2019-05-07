@@ -45,15 +45,15 @@ static const std::string VERSION = avsCommon::utils::sdkVersion::getCurrentVersi
 
 // clang-format off
 static const std::string ALEXA_WELCOME_MESSAGE =
-    "                  #    #     #  #####      #####  ######  #    #              \n"
-    "                 # #   #     # #     #    #     # #     # #   #               \n"
-    "                #   #  #     # #          #       #     # #  #                \n"
-    "               #     # #     #  #####      #####  #     # ###                 \n"
-    "               #######  #   #        #          # #     # #  #                \n"
-    "               #     #   # #   #     #    #     # #     # #   #               \n"
-    "               #     #    #     #####      #####  ######  #    #              \n"
+    "       #         #    ######  #####   ########    ######     ########         \n"
+    "       #         #    #       #       #      #   #      #    #      #         \n"
+    "       #         #    #       #       #      #   #      #    #      #         \n"
+    "       #         #    ######  #####   ########   #      #    #      #         \n"
+    "       #         #    #       #       #          #      #    #      #         \n"
+    "       #         #    #       #       #          #      #    #      #         \n"
+    "       ########  #    #       #####   #           ######     ########         \n"
     "                                                                              \n"
-    "       #####                                           #                      \n"
+    "                                                       #                      \n"
     "      #     #   ##   #    # #####  #      ######      # #   #####  #####      \n"
     "      #        #  #  ##  ## #    # #      #          #   #  #    # #    #     \n"
     "       #####  #    # # ## # #    # #      #####     #     # #    # #    #     \n"
@@ -61,6 +61,7 @@ static const std::string ALEXA_WELCOME_MESSAGE =
     "      #     # #    # #    # #      #      #         #     # #      #          \n"
     "       #####  #    # #    # #      ###### ######    #     # #      #          \n\n"
     "       SDK Version " + VERSION + "\n";
+
 // clang-format on
 static const std::string HELP_MESSAGE =
     "+----------------------------------------------------------------------------+\n"
@@ -70,10 +71,10 @@ static const std::string HELP_MESSAGE =
     "|       Simply say Alexa and begin your query.                               |\n"
 #endif
     "| Tap to talk:                                                               |\n"
-    "|       Press 't' and Enter followed by your query (no need for the 'Alexa').|\n"
+    "|       Press 't' and Enter followed by your query (no need for  'LifePod'). |\n"
     "| Hold to talk:                                                              |\n"
     "|       Press 'h' followed by Enter to simulate holding a button.            |\n"
-    "|       Then say your query (no need for the 'Alexa').                       |\n"
+    "|       Then say your query (no need for the 'LifePod').                     |\n"
     "|       Press 'h' followed by Enter to simulate releasing a button.          |\n"
     "| Stop an interaction:                                                       |\n"
     "|       Press 's' and Enter to stop an ongoing interaction.                  |\n"
@@ -579,7 +580,7 @@ void UIManager::printState() {
     } else if (m_connectionStatus == avsCommon::sdkInterfaces::ConnectionStatusObserverInterface::Status::CONNECTED) {
         switch (m_dialogState) {
             case DialogUXState::IDLE:
-                ConsolePrinter::prettyPrint("Alexa is currently idle!");
+                ConsolePrinter::prettyPrint("LifePod is currently idle!");
                 return;
             case DialogUXState::LISTENING:
                 ConsolePrinter::prettyPrint("Listening...");
