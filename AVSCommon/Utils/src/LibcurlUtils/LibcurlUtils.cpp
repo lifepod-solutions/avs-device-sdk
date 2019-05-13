@@ -90,8 +90,8 @@ bool prepareForTLS(CURL* handle) {
     }
     if (!(SETOPT(handle, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2) &&
           SETOPT(handle, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0) &&
-          SETOPT(handle, CURLOPT_USE_SSL, CURLUSESSL_ALL) && SETOPT(handle, CURLOPT_SSL_VERIFYPEER, 0L) &&
-          SETOPT(handle, CURLOPT_SSL_VERIFYHOST, 0L))) {
+          SETOPT(handle, CURLOPT_USE_SSL, CURLUSESSL_ALL) && SETOPT(handle, CURLOPT_SSL_VERIFYPEER, 1L) &&
+          SETOPT(handle, CURLOPT_SSL_VERIFYHOST, 2L))) {
         return false;
     }
 
