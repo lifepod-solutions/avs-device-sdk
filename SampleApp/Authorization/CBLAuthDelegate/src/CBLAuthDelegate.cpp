@@ -15,10 +15,6 @@
 
 #include "picosha2.h"
 
-extern "C" {
-#include "randombytes.h"
-}
-
 #include <string>
 #include <sstream>
 #include <iomanip>
