@@ -5,7 +5,10 @@
         // The database file (cblAuthDelegate.db) will be created by SampleApp, do not create it yourself.
         // The database file should only be used for CBLAuthDelegate (don't use it for other components of SDK)
         "mockCompanionAppUrl":"http://localhost:5000/",
-        "lwaUrl": "http://localhost:8080/api/1/",
+        // "lwaUrl": "http://localhost:8080/",
+        // "lwaUrl": "https://avs-auth-qa.lifepod.com/",
+        "lwaUrl": "https://avs-auth.lifepod.com/",
+
         "databaseFilePath":"${SDK_CBL_AUTH_DELEGATE_DATABASE_FILE_PATH}"
     },
     "deviceInfo":{
@@ -17,7 +20,10 @@
         "productId":"${SDK_CONFIG_PRODUCT_ID}"
     },
     "capabilitiesDelegate":{
-        "endpoint": "https://localhost"
+        // "endpoint": "https://localhost"
+        // "endpoint": "https://avs-qa.lifepod.com"
+        "endpoint": "https://avs.lifepod.com"
+
 
         // The endpoint to connect in order to send device capabilities.
         // This will only be used in DEBUG builds.
@@ -89,7 +95,9 @@
         "databaseFilePath":"${SDK_NOTIFICATIONS_DATABASE_FILE_PATH}"
     },
     "sampleApp":{
-        "endpoint": "https://localhost",
+        // "endpoint": "https://localhost",
+        // "endpoint": "https://avs-qa.lifepod.com",
+        "endpoint": "https://avs.lifepod.com",
         // To specify if the SampleApp supports display cards.
         "displayCardsSupported":true
         // The firmware version of the device to send in SoftwareInfo event.
