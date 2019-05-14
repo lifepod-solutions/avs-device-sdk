@@ -119,7 +119,7 @@ static const std::string POST_KEY_REDIRECT_URI = "redirect_uri";
 static const std::string POST_VALUE_AUTHORIZATION_CODE = "authorization_code";
 
 /// redirect uri value in POST requests to @c LWA.
-static const std::string POST_VALUE_REDIRECT_URI = "TBD";
+static const std::string POST_VALUE_REDIRECT_URI = "http://localhost:5000/authresponse";
 
 /// authorization_code key in POST requests to @c LWA.
 static const std::string POST_KEY_AUTHORIZATION_CODE = "code";
