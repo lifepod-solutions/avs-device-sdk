@@ -13,11 +13,10 @@
  * permissions and limitations under the License.
  */
 
-#include "picosha2.h"
-
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <stdlib.h>
 
 #include <algorithm>
 #include <functional>
@@ -499,17 +498,40 @@ CBLAuthDelegate::FlowState CBLAuthDelegate::handleStarting() {
     return FlowState::SENDING_CODE_CHALLENGE;
 }
 
+std::string exec(std::string cmd) {
+    std::string data;
+    FILE* stream;
+    const int max_buffer = 256;
+    char buffer[max_buffer];
+    cmd.append(" 2>&1");
+
+    stream = popen(cmd.c_str(), "r");
+    if (stream) {
+        while (!feof(stream))
+            if (fgets(buffer, max_buffer, stream) != NULL) data.append(buffer);
+        pclose(stream);
+    }
+    return data;
+}
+
 CBLAuthDelegate::FlowState CBLAuthDelegate::handleSendingCodeChallenge() {
     m_retryCount = 0;
-    m_codeVerifier = CBLAuthDelegate::random_string();
-    std::string code_challenge;
-    picosha2::hash256_hex_string(m_codeVerifier, code_challenge);
-    ACSDK_DEBUG5(LX("handleSendingCodeChallenge: " + m_codeVerifier));
+    m_codeVerifier = exec("head -c 32 /dev/urandom | base64 | sed -e \"s,=,,g\" -e \"s,+,-,g\" -e \"s,/,_,g\"");
+    std::string ccCmd1 = "bash -c \"echo -n ";
+    std::string ccCmd2 = m_codeVerifier;
+    ccCmd2.erase(std::remove(ccCmd2.begin(), ccCmd2.end(), '\n'), ccCmd2.end());
+    std::string ccCmd3 = "| openssl dgst -sha256 -binary | base64 | ";
+    std::string ccCmd4 = "sed -e \"s,=,,g\" -e \"s,+,-,g\" -e \"s,/,_,g\"\"";
+    std::ostringstream codeChallengeCmdStringStream;
+    codeChallengeCmdStringStream << ccCmd1 << ccCmd2 << ccCmd3 << ccCmd4;
+    auto codeChallengeCmd = codeChallengeCmdStringStream.str();
+    auto codeChallenge = exec(codeChallengeCmd);
+    codeChallenge.erase(std::remove(codeChallenge.begin(), codeChallenge.end(), '\n'), codeChallenge.end());
     ACSDK_DEBUG5(LX("code verifier: " + m_codeVerifier));
-    ACSDK_DEBUG5(LX("code challenge: " + code_challenge));
+    ACSDK_DEBUG5(LX("code challenge: " + codeChallenge));
 
     auto url = m_configuration->getLoginRedirectUrl() + "?serial_number=" + m_configuration->getDeviceSerialNumber() +
-               "&product_id=" + m_configuration->getProductId() + "&code_challenge=" + code_challenge;
+               "&product_id=" + m_configuration->getProductId() + "&code_challenge=" + codeChallenge;
     m_authRequester->showCodeChallengeURI(url);
     while (!isStopping()) {
         auto result = receiveAuthCodeResponse(pollForAuthorizationCodeOnAuthSuccess());
@@ -540,21 +562,6 @@ CBLAuthDelegate::FlowState CBLAuthDelegate::handleSendingCodeChallenge() {
     }
 
     return FlowState::STOPPING;
-}
-
-// Creates random code verifier of length 32
-std::string CBLAuthDelegate::random_string() {
-    auto randchar = []() -> char {
-        const char charset[] =
-            "0123456789"
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-            "abcdefghijklmnopqrstuvwxyz";
-        const size_t max_index = (sizeof(charset) - 1);
-        return charset[rand() % max_index];
-    };
-    std::string str(32, 0);
-    std::generate_n(str.begin(), 32, randchar);
-    return str;
 }
 
 CBLAuthDelegate::FlowState CBLAuthDelegate::handleRequestingToken() {

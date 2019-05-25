@@ -218,8 +218,6 @@ private:
      */
     avsCommon::utils::libcurlUtils::HTTPResponse pollForAuthorizationCodeOnAuthSuccess();
 
-    std::string random_string();
-
     /**
      * Use a companion app auth to request an access token.
      *
