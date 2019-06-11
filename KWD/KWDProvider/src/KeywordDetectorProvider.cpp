@@ -49,7 +49,7 @@ std::unique_ptr<kwd::AbstractKeywordDetector> KeywordDetectorProvider::create(
         keyWordObservers,
         keyWordDetectorStateObservers,
         pathToInputFolder + "/common.res",
-        {{pathToInputFolder + "/LifePod.pmdl", "LIFEPOD", KITT_AI_SENSITIVITY}},
+        {{pathToInputFolder + "/alexa.umdl", "ALEXA", KITT_AI_SENSITIVITY}},
         KITT_AI_AUDIO_GAIN,
         KITT_AI_APPLY_FRONT_END_PROCESSING);
 
