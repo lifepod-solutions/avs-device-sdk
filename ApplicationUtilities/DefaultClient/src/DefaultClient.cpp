@@ -105,6 +105,7 @@ std::unique_ptr<DefaultClient> DefaultClient::create(
         connectionObservers,
     std::shared_ptr<avsCommon::utils::network::InternetConnectionMonitor> internetConnectionMonitor,
     bool isGuiSupported,
+    alexaClientSDK::capabilityAgents::aip::AudioProvider defaultAudioProvider,
     std::shared_ptr<avsCommon::sdkInterfaces::CapabilitiesDelegateInterface> capabilitiesDelegate,
     std::shared_ptr<avsCommon::sdkInterfaces::ContextManagerInterface> contextManager,
     std::shared_ptr<alexaClientSDK::acl::TransportFactoryInterface> transportFactory,
@@ -149,6 +150,7 @@ std::unique_ptr<DefaultClient> DefaultClient::create(
             connectionObservers,
             internetConnectionMonitor,
             isGuiSupported,
+            defaultAudioProvider,
             capabilitiesDelegate,
             contextManager,
             transportFactory,
@@ -202,6 +204,7 @@ bool DefaultClient::initialize(
         connectionObservers,
     std::shared_ptr<avsCommon::utils::network::InternetConnectionMonitor> internetConnectionMonitor,
     bool isGuiSupported,
+    alexaClientSDK::capabilityAgents::aip::AudioProvider defaultAudioProvider,
     std::shared_ptr<avsCommon::sdkInterfaces::CapabilitiesDelegateInterface> capabilitiesDelegate,
     std::shared_ptr<avsCommon::sdkInterfaces::ContextManagerInterface> contextManager,
     std::shared_ptr<alexaClientSDK::acl::TransportFactoryInterface> transportFactory,
@@ -213,6 +216,7 @@ bool DefaultClient::initialize(
         ACSDK_ERROR(LX("initializeFailed").d("reason", "nullAudioFactory"));
         return false;
     }
+
 
     if (!speakMediaPlayer) {
         ACSDK_ERROR(LX("initializeFailed").d("reason", "nullSpeakMediaPlayer"));
@@ -416,7 +420,9 @@ bool DefaultClient::initialize(
         m_audioFocusManager,
         m_dialogUXStateAggregator,
         m_exceptionSender,
-        m_userInactivityMonitor);
+        m_userInactivityMonitor,
+        nullptr,
+        defaultAudioProvider);
 #endif
 
     if (!m_audioInputProcessor) {
@@ -425,6 +431,7 @@ bool DefaultClient::initialize(
     }
 
     m_audioInputProcessor->addObserver(m_dialogUXStateAggregator);
+    m_audioInputProcessor->addObserver(m_directiveSequencer);
 
     /*
      * Creating the Speech Synthesizer - This component is the Capability Agent that implements the SpeechSynthesizer

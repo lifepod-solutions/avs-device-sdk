@@ -190,6 +190,7 @@ public:
             connectionObservers,
         std::shared_ptr<avsCommon::utils::network::InternetConnectionMonitor> internetConnectionMonitor,
         bool isGuiSupported,
+        alexaClientSDK::capabilityAgents::aip::AudioProvider,
         std::shared_ptr<avsCommon::sdkInterfaces::CapabilitiesDelegateInterface> capabilitiesDelegate,
         std::shared_ptr<avsCommon::sdkInterfaces::ContextManagerInterface> contextManager,
         std::shared_ptr<alexaClientSDK::acl::TransportFactoryInterface> transportFactory,
@@ -200,6 +201,7 @@ public:
             nullptr,
         std::unique_ptr<avsCommon::sdkInterfaces::bluetooth::BluetoothDeviceManagerInterface> bluetoothDeviceManager =
             nullptr);
+
     /// @name CapabilitiesObserverInterface Methods
     /// @{
     void onCapabilitiesStateChange(
@@ -702,6 +704,7 @@ private:
             connectionObservers,
         std::shared_ptr<avsCommon::utils::network::InternetConnectionMonitor> internetConnectionMonitor,
         bool isGuiSupported,
+        alexaClientSDK::capabilityAgents::aip::AudioProvider,
         std::shared_ptr<avsCommon::sdkInterfaces::CapabilitiesDelegateInterface> capabilitiesDelegate,
         std::shared_ptr<avsCommon::sdkInterfaces::ContextManagerInterface> contextManager,
         std::shared_ptr<alexaClientSDK::acl::TransportFactoryInterface> transportFactory,
@@ -711,7 +714,7 @@ private:
         std::unique_ptr<avsCommon::sdkInterfaces::bluetooth::BluetoothDeviceManagerInterface> bluetoothDeviceManager);
 
     /// The directive sequencer.
-    std::shared_ptr<avsCommon::sdkInterfaces::DirectiveSequencerInterface> m_directiveSequencer;
+    std::shared_ptr<alexaClientSDK::adsl::DirectiveSequencer> m_directiveSequencer;
 
     /// The focus manager for audio channels.
     std::shared_ptr<afml::FocusManager> m_audioFocusManager;

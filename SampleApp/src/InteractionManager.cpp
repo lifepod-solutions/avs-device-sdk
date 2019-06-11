@@ -69,8 +69,8 @@ void InteractionManager::begin() {
     });
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
-    tap();
-    tap();
+    // tap();
+    // tap();
 }
 
 void InteractionManager::help() {

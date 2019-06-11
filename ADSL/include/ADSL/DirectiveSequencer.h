@@ -22,6 +22,7 @@
 #include <mutex>
 #include <thread>
 
+#include <AVSCommon/SDKInterfaces/AudioInputProcessorObserverInterface.h>
 #include <AVSCommon/SDKInterfaces/ExceptionEncounteredSenderInterface.h>
 #include <AVSCommon/SDKInterfaces/DirectiveSequencerInterface.h>
 
@@ -34,7 +35,9 @@ namespace adsl {
 /**
  * Class for sequencing and handling a stream of @c AVSDirective instances.
  */
-class DirectiveSequencer : public avsCommon::sdkInterfaces::DirectiveSequencerInterface {
+class DirectiveSequencer : 
+    public avsCommon::sdkInterfaces::DirectiveSequencerInterface,
+    public avsCommon::sdkInterfaces::AudioInputProcessorObserverInterface {
 public:
     /**
      * Create a DirectiveSequencer.
@@ -43,7 +46,7 @@ public:
      * ExceptionEncountered messages to AVS for directives that are not handled.
      * @return Returns a new DirectiveSequencer, or nullptr if the operation failed.
      */
-    static std::unique_ptr<DirectiveSequencerInterface> create(
+    static std::unique_ptr<DirectiveSequencer> create(
         std::shared_ptr<avsCommon::sdkInterfaces::ExceptionEncounteredSenderInterface> exceptionSender);
 
     bool addDirectiveHandler(std::shared_ptr<avsCommon::sdkInterfaces::DirectiveHandlerInterface> handler) override;
@@ -57,6 +60,8 @@ public:
     void disable() override;
 
     void enable() override;
+
+    void onStateChanged(avsCommon::sdkInterfaces::AudioInputProcessorObserverInterface::State state) override;
 
 private:
     /**
@@ -114,6 +119,7 @@ private:
 
     /// Thread to receive directives.
     std::thread m_receivingThread;
+
 };
 
 }  // namespace adsl

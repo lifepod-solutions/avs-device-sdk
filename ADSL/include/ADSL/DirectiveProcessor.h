@@ -29,7 +29,7 @@
 
 #include <AVSCommon/AVS/AVSDirective.h>
 #include <AVSCommon/SDKInterfaces/DirectiveHandlerInterface.h>
-
+#include "AVSCommon/SDKInterfaces/AudioInputProcessorObserverInterface.h"
 #include "ADSL/DirectiveRouter.h"
 
 namespace alexaClientSDK {
@@ -108,6 +108,11 @@ public:
      * @return Whether it succeeded to enable the directive processor.
      */
     bool enable();
+
+
+   /// Contains the current state of the @c AudioInputProcessor as reported by @c AudioInputProcessorObserverInterface
+    std::atomic<alexaClientSDK::avsCommon::sdkInterfaces::AudioInputProcessorObserverInterface::State>
+        m_audioInputProcessorState;
 
 private:
     /**

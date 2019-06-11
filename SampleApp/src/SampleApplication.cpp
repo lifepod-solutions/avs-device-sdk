@@ -664,79 +664,6 @@ bool SampleApplication::initialize(
 #endif
 
     /*
-     * Creating the DefaultClient - this component serves as an out-of-box default object that instantiates and "glues"
-     * together all the modules.
-     */
-    std::shared_ptr<alexaClientSDK::defaultClient::DefaultClient> client =
-        alexaClientSDK::defaultClient::DefaultClient::create(
-            deviceInfo,
-            customerDataManager,
-            m_externalMusicProviderMediaPlayersMap,
-            m_externalMusicProviderSpeakersMap,
-            m_adapterToCreateFuncMap,
-            m_speakMediaPlayer,
-            m_audioMediaPlayer,
-            m_alertsMediaPlayer,
-            m_notificationsMediaPlayer,
-            m_bluetoothMediaPlayer,
-            m_ringtoneMediaPlayer,
-            speakSpeaker,
-            audioSpeaker,
-            alertsSpeaker,
-            notificationsSpeaker,
-            bluetoothSpeaker,
-            ringtoneSpeaker,
-            additionalSpeakers,
-#ifdef ENABLE_PCC
-            phoneSpeaker,
-            phoneCaller,
-#endif
-            equalizerRuntimeSetup,
-            audioFactory,
-            authDelegate,
-            std::move(alertStorage),
-            std::move(messageStorage),
-            std::move(notificationsStorage),
-            std::move(settingsStorage),
-            std::move(deviceSettingsStorage),
-            std::move(bluetoothStorage),
-            {userInterfaceManager},
-            {userInterfaceManager},
-            std::move(internetConnectionMonitor),
-            displayCardsSupported,
-            m_capabilitiesDelegate,
-            contextManager,
-            transportFactory,
-            firmwareVersion,
-            true,
-            nullptr,
-            std::move(bluetoothDeviceManager));
-
-    if (!client) {
-        ACSDK_CRITICAL(LX("Failed to create default SDK client!"));
-        return false;
-    }
-
-    // Add userInterfaceManager as observer of locale setting.
-    client->addSettingObserver("locale", userInterfaceManager);
-
-    client->addSpeakerManagerObserver(userInterfaceManager);
-
-    client->addNotificationsObserver(userInterfaceManager);
-
-    client->addBluetoothDeviceObserver(userInterfaceManager);
-
-    userInterfaceManager->configureSettingsNotifications(client->getSettingsManager());
-
-    /*
-     * Add GUI Renderer as an observer if display cards are supported.
-     */
-    if (displayCardsSupported) {
-        m_guiRenderer = std::make_shared<GuiRenderer>();
-        client->addTemplateRuntimeObserver(m_guiRenderer);
-    }
-
-    /*
      * Creating the buffer (Shared Data Stream) that will hold user audio data. This is the main input into the SDK.
      */
     size_t bufferSize = alexaClientSDK::avsCommon::avs::AudioInputStream::calculateBufferSize(
@@ -788,6 +715,81 @@ bool SampleApplication::initialize(
         holdAlwaysReadable,
         holdCanOverride,
         holdCanBeOverridden);
+
+
+    /*
+     * Creating the DefaultClient - this component serves as an out-of-box default object that instantiates and "glues"
+     * together all the modules.
+     */
+    std::shared_ptr<alexaClientSDK::defaultClient::DefaultClient> client =
+        alexaClientSDK::defaultClient::DefaultClient::create(
+            deviceInfo,
+            customerDataManager,
+            m_externalMusicProviderMediaPlayersMap,
+            m_externalMusicProviderSpeakersMap,
+            m_adapterToCreateFuncMap,
+            m_speakMediaPlayer,
+            m_audioMediaPlayer,
+            m_alertsMediaPlayer,
+            m_notificationsMediaPlayer,
+            m_bluetoothMediaPlayer,
+            m_ringtoneMediaPlayer,
+            speakSpeaker,
+            audioSpeaker,
+            alertsSpeaker,
+            notificationsSpeaker,
+            bluetoothSpeaker,
+            ringtoneSpeaker,
+            additionalSpeakers,
+#ifdef ENABLE_PCC
+            phoneSpeaker,
+            phoneCaller,
+#endif
+            equalizerRuntimeSetup,
+            audioFactory,
+            authDelegate,
+            std::move(alertStorage),
+            std::move(messageStorage),
+            std::move(notificationsStorage),
+            std::move(settingsStorage),
+            std::move(deviceSettingsStorage),
+            std::move(bluetoothStorage),
+            {userInterfaceManager},
+            {userInterfaceManager},
+            std::move(internetConnectionMonitor),
+            displayCardsSupported,
+            tapToTalkAudioProvider,
+            m_capabilitiesDelegate,
+            contextManager,
+            transportFactory,
+            firmwareVersion,
+            true,
+            nullptr,
+            std::move(bluetoothDeviceManager));
+
+    if (!client) {
+        ACSDK_CRITICAL(LX("Failed to create default SDK client!"));
+        return false;
+    }
+
+    // Add userInterfaceManager as observer of locale setting.
+    client->addSettingObserver("locale", userInterfaceManager);
+
+    client->addSpeakerManagerObserver(userInterfaceManager);
+
+    client->addNotificationsObserver(userInterfaceManager);
+
+    client->addBluetoothDeviceObserver(userInterfaceManager);
+
+    userInterfaceManager->configureSettingsNotifications(client->getSettingsManager());
+
+    /*
+     * Add GUI Renderer as an observer if display cards are supported.
+     */
+    if (displayCardsSupported) {
+        m_guiRenderer = std::make_shared<GuiRenderer>();
+        client->addTemplateRuntimeObserver(m_guiRenderer);
+    }
 
 #ifdef PORTAUDIO
     std::shared_ptr<PortAudioMicrophoneWrapper> micWrapper = PortAudioMicrophoneWrapper::create(sharedDataStream);

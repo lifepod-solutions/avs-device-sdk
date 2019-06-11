@@ -41,13 +41,13 @@ using namespace avsCommon::avs;
 using namespace avsCommon::sdkInterfaces;
 using namespace avsCommon::utils;
 
-std::unique_ptr<DirectiveSequencerInterface> DirectiveSequencer::create(
+std::unique_ptr<DirectiveSequencer> DirectiveSequencer::create(
     std::shared_ptr<avsCommon::sdkInterfaces::ExceptionEncounteredSenderInterface> exceptionSender) {
     if (!exceptionSender) {
         ACSDK_INFO(LX("createFailed").d("reason", "nullptrExceptionSender"));
         return nullptr;
     }
-    return std::unique_ptr<DirectiveSequencerInterface>(new DirectiveSequencer(exceptionSender));
+    return std::unique_ptr<DirectiveSequencer>(new DirectiveSequencer(exceptionSender));
 }
 
 bool DirectiveSequencer::addDirectiveHandler(std::shared_ptr<DirectiveHandlerInterface> handler) {
@@ -174,5 +174,10 @@ void DirectiveSequencer::receiveDirectiveLocked(std::unique_lock<std::mutex>& lo
     lock.lock();
 }
 
+void DirectiveSequencer::onStateChanged(AudioInputProcessorObserverInterface::State state) {
+    m_directiveProcessor->m_audioInputProcessorState = state;
+}
+
 }  // namespace adsl
 }  // namespace alexaClientSDK
+

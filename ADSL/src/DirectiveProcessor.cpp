@@ -84,7 +84,11 @@ bool DirectiveProcessor::onDirective(std::shared_ptr<AVSDirective> directive) {
     // directives having a dialogRequestID in the payload even though it should be handled immediately. This additional
     // checking should be removed when a new InteractionModel version has been implemented which fixes the problem in
     // the directive.
-    bool bypassDialogRequestIDCheck = true;
+
+    // added idle state requirement to bypassDialogRequestIDCheck logic for NewDialogRequest directive to preserve higher reactive channel priority
+    bool bypassDialogRequestIDCheck =
+        directive->getName() == "NewDialogRequest" && directive->getNamespace() == "InteractionModel" && m_audioInputProcessorState == AudioInputProcessorObserverInterface::State::IDLE;
+
 
     if (bypassDialogRequestIDCheck) {
         ACSDK_INFO(LX("onDirective")
