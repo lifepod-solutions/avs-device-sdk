@@ -23,7 +23,7 @@
 
 #ifdef KWD_KITTAI
 /// The sensitivity of the Kitt.ai engine.
-static const double KITT_AI_SENSITIVITY = 0.6;
+static const double KITT_AI_SENSITIVITY = 0.38;
 
 /// The audio amplifier level of the Kitt.ai engine.
 static const float KITT_AI_AUDIO_GAIN = 2.0;
@@ -49,7 +49,7 @@ std::unique_ptr<kwd::AbstractKeywordDetector> KeywordDetectorProvider::create(
         keyWordObservers,
         keyWordDetectorStateObservers,
         pathToInputFolder + "/common.res",
-        {{pathToInputFolder + "/alexa.umdl", "ALEXA", KITT_AI_SENSITIVITY}},
+        {{pathToInputFolder + "/LifePod.pmdl", "LIFEPOD", KITT_AI_SENSITIVITY}},
         KITT_AI_AUDIO_GAIN,
         KITT_AI_APPLY_FRONT_END_PROCESSING);
 

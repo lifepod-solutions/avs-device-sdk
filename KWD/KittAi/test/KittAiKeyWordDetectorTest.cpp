@@ -45,10 +45,10 @@ std::string inputsDirPath;
 static const std::string RESOURCE_FILE = "/KittAiModels/common.res";
 
 /// The name of the Alexa model file for Kitt.ai.
-static const std::string MODEL_FILE = "/KittAiModels/alexa.umdl";
+static const std::string MODEL_FILE = "/KittAiModels/LifePod.pmdl";
 
 /// The keyword associated with alexa.umdl.
-static const std::string MODEL_KEYWORD = "ALEXA";
+static const std::string MODEL_KEYWORD = "LIFEPOD";
 
 /// The name of a test audio file.
 static const std::string FOUR_ALEXAS_AUDIO_FILE = "/four_alexa.wav";
