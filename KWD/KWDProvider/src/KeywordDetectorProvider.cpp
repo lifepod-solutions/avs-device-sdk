@@ -23,7 +23,7 @@
 
 #ifdef KWD_KITTAI
 /// The sensitivity of the Kitt.ai engine.
-static const double KITT_AI_SENSITIVITY = 0.38;
+static const double KITT_AI_SENSITIVITY = 0.42;
 
 /// The audio amplifier level of the Kitt.ai engine.
 static const float KITT_AI_AUDIO_GAIN = 2.0;
