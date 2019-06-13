@@ -807,7 +807,7 @@ bool SampleApplication::initialize(
 // Creating wake word audio provider, if necessary
 #ifdef KWD
     bool wakeAlwaysReadable = true;
-    bool wakeCanOverride = false;
+    bool wakeCanOverride = true;
     bool wakeCanBeOverridden = true;
 
     alexaClientSDK::capabilityAgents::aip::AudioProvider wakeWordAudioProvider(
