@@ -12,7 +12,7 @@ include(tools/Testing.cmake)
 
 # Set variables for target install and .pc pkg-config file
 include(build/cmake/PrepareInstall.cmake)
-
+include_directories(/usr/local/Cellar/openssl/1.0.2s/include/)
 
 configure_file (
 	"${PROJECT_SOURCE_DIR}/AVSCommon/Utils/include/AVSCommon/Utils/SDKVersion.h.in"
