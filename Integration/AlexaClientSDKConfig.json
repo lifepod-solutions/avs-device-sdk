@@ -5,9 +5,9 @@
         // The database file (cblAuthDelegate.db) will be created by SampleApp, do not create it yourself.
         // The database file should only be used for CBLAuthDelegate (don't use it for other components of SDK)
         "mockCompanionAppUrl":"http://localhost:5000/",
-        // "lwaUrl": "http://localhost:8080/",
+        "lwaUrl": "http://localhost:8080/",
         // "lwaUrl": "https://avs-auth-qa.lifepod.com/",
-        "lwaUrl": "https://avs-auth.lifepod.com/",
+        // "lwaUrl": "https://avs-auth.lifepod.com/",
 
         "databaseFilePath":"${SDK_CBL_AUTH_DELEGATE_DATABASE_FILE_PATH}"
     },
@@ -20,9 +20,9 @@
         "productId":"${SDK_CONFIG_PRODUCT_ID}"
     },
     "capabilitiesDelegate":{
-        // "endpoint": "https://localhost"
+        "endpoint": "https://localhost"
         // "endpoint": "https://avs-qa.lifepod.com"
-        "endpoint": "https://avs.lifepod.com"
+        // "endpoint": "https://avs.lifepod.com"
 
 
         // The endpoint to connect in order to send device capabilities.
@@ -95,16 +95,16 @@
         "databaseFilePath":"${SDK_NOTIFICATIONS_DATABASE_FILE_PATH}"
     },
     "sampleApp":{
-        // "endpoint": "https://localhost",
+        "endpoint": "https://localhost",
         // "endpoint": "https://avs-qa.lifepod.com",
-        "endpoint": "https://avs.lifepod.com",
+        // "endpoint": "https://avs.lifepod.com",
         // To specify if the SampleApp supports display cards.
         "displayCardsSupported":true
         // The firmware version of the device to send in SoftwareInfo event.
         // Note: The firmware version should be a positive 32-bit integer in the range [1-2147483647].
         // e.g. "firmwareVersion": 123
         // The default endpoint to connect to.
-        // See https://developer.amazon.com/docs/alexa-voice-service/api-overview.html#endpoints for regions and values
+        // See https://developer.amazon.com/docs/alezxa-voice-service/api-overview.html#endpoints for regions and values
         // e.g. "endpoint": "https://avs-alexa-na.amazon.com"
 
         // Example of specifying suggested latency in seconds when openning PortAudio stream. By default,
